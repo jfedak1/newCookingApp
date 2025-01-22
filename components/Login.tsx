@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
+import { VStack } from "@/components/ui/vstack"
 import {
   FormControl,
   FormControlLabel,
@@ -10,71 +11,135 @@ import {
   FormControlErrorText,
   FormControlErrorIcon,
 } from "@/components/ui/form-control";
-import { Input, InputField } from "@/components/ui/input";
+import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react-native";
+import { AlertCircle, EyeOff, Eye } from "lucide-react-native";
 
-const US_PHONE_REGEX = /^(?:\+?1\s?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/;
+// const US_PHONE_REGEX = /^(?:\+?1\s?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/;
+
+// Email Regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 interface LoginProps {
   onPressSignUp: () => void;
 }
 
 export default function Login({ onPressSignUp }: LoginProps) {
-  const [phone, setPhone] = useState("");
-  const [phoneError, setPhoneError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+  const handleShowPassword = () => {
+    setShowPassword((showState) => {
+      return !showState
+    })
+  }
+  // Field states
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+  
+    // Error states
+    const [emailError, setEmailError] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
+  
+    const handleLogin = () => {
+      let valid = true;
+  
+      if (!EMAIL_REGEX.test(email)) {
+        setEmailError(true);
+        valid = false;
+      } else {
+        setEmailError(false);
+      }
 
-  const handleSendOneTimePasscode = () => {
-    if (!US_PHONE_REGEX.test(phone)) {
-      setPhoneError(true);
-    } else {
-      setPhoneError(false);
-      // proceed with sending OTP
-    }
-  };
+      if (password.length < 2 || password.length > 30) {
+        setPasswordError(true);
+        valid = false;
+      } else {
+        setPasswordError(false);
+      }
+  
+      if (valid) {
+        console.log('All validations passed, creating account...');
+        // ...submit or proceed
+      }
+    };
 
   return (
-    <Box className="flex flex-col items-center">
+    <Box className="flex flex-col items-center mt-[-30px] max-w-[325px]">
       <Heading size="3xl" className="text-primary-text mb-10">
-        Phone Login
+        Login with Email
       </Heading>
 
-      <FormControl isInvalid={phoneError} className="w-[300px]">
-        <Box className="flex flex-row items-center w-[300px] gap-3">
-          <Text className="text-2xl font-medium">+1</Text>
-          <Input
-            variant="outline"
-            size="xl"
-            className="flex-1 h-[54px] rounded-xl"
-          >
+      <VStack space="md" className="">
+        
+        {/* Email */}
+        <FormControl isInvalid={emailError} className="min-w-full">
+          <FormControlLabel>
+            <FormControlLabelText className="text-lg text-typography-500">
+              Email
+            </FormControlLabelText>
+          </FormControlLabel>
+          <Input size="xl" className="rounded-xl h-[50px]">
             <InputField
-              placeholder="000 000 0000"
-              value={phone}
-              onChangeText={setPhone}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="steakandshrimp@gmail.com"
             />
           </Input>
-        </Box>
+          {emailError && (
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircle} />
+              <FormControlErrorText
+                className=" overflow-hidden flex-wrap"
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                Invalid
+              </FormControlErrorText>
+            </FormControlError>
+          )}
+        </FormControl>
 
-        {phoneError && (
-          <FormControlError>
-            <FormControlErrorIcon as={AlertCircle} />
-            <FormControlErrorText
-              className="overflow-hidden flex-wrap"
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              Invalid phone number
-            </FormControlErrorText>
-          </FormControlError>
-        )}
-      </FormControl>
+        {/* Password */}
+        <FormControl isInvalid={passwordError} className="min-w-full">
+          <FormControlLabel>
+            <FormControlLabelText className="text-lg text-typography-500">
+              Password
+            </FormControlLabelText>
+          </FormControlLabel>
+          <Input size="xl" className="rounded-xl h-[50px]">
+            <InputField
+              value={password}
+              onChangeText={setPassword}
+              placeholder="1IoveSteak&Shrimp!"
+              type={showPassword ? "text" : "password"}
+            />
+            <InputSlot className="pr-3" onPress={handleShowPassword}>
+              <InputIcon as={showPassword ? Eye : EyeOff} />
+            </InputSlot>
+          </Input>
+          {passwordError && (
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircle} />
+              <FormControlErrorText
+                className=" overflow-hidden flex-wrap"
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                Invalid
+              </FormControlErrorText>
+            </FormControlError>
+          )}
+        </FormControl>
 
-      <Button
-        className="rounded-xl w-[300px] h-[50px] mt-4"
-        onPress={handleSendOneTimePasscode}
-      >
-        <ButtonText className="text-xl">Send One-time Passcode</ButtonText>
-      </Button>
+        {/* Login */}
+        <Button
+          className="min-w-full rounded-xl h-[50px] mt-2 self-center"
+          onPress={handleLogin}
+        >
+          <ButtonText className="text-lg text-typography-0">
+            Login
+          </ButtonText>
+        </Button>
+      </VStack>
 
       <Box className="flex flex-row items-center gap-2 mt-2">
         <Text size="lg" className="text-primary-text">

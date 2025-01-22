@@ -19,8 +19,8 @@ import {
   FormControlErrorText,
   FormControlErrorIcon,
 } from "@/components/ui/form-control"
-import { AlertCircle } from 'lucide-react-native';
-import { Input, InputField, InputSlot } from "@/components/ui/input"
+import { AlertCircle, Eye, EyeOff } from 'lucide-react-native';
+import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input"
 import { Button, ButtonText } from "@/components/ui/button"
 // import { Button, ButtonText } from "@/components/ui/button"
 // import { Icon } from "@/components/ui/icon"
@@ -43,20 +43,34 @@ interface SignUpProps {
 // Simple username regex (letters, digits, underscores, hyphens, periods).
 const USERNAME_REGEX = /^[A-Za-z0-9_.-]+$/;
 // Simple US phone regex (example; customize as needed).
-const US_PHONE_REGEX = /^(?:\+?1\s?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/;
+// const US_PHONE_REGEX = /^(?:\+?1\s?)?(?:\(\d{3}\)|\d{3})[\s.-]?\d{3}[\s.-]?\d{4}$/;
+
+// Email Regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 
 export default function SignUp({ onPressLogin }: SignUpProps) {
+  // Hide/show password icon
+  const [showPassword, setShowPassword] = useState(false)
+    const handleShowPassword = () => {
+      setShowPassword((showState) => {
+        return !showState
+      })
+    }
+
   // Field states
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   // Error states
   const [firstNameError, setFirstNameError] = useState(false);
   const [lastNameError, setLastNameError] = useState(false);
   const [usernameError, setUsernameError] = useState(false);
-  const [phoneError, setPhoneError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
 
   const handleCreateAccount = () => {
     let valid = true;
@@ -87,11 +101,18 @@ export default function SignUp({ onPressLogin }: SignUpProps) {
       setUsernameError(false);
     }
 
-    if (!US_PHONE_REGEX.test(phone)) {
-      setPhoneError(true);
+    if (!EMAIL_REGEX.test(email)) {
+      setEmailError(true);
       valid = false;
     } else {
-      setPhoneError(false);
+      setEmailError(false);
+    }
+
+    if (password.length < 2 || password.length > 30) {
+      setPasswordError(true);
+      valid = false;
+    } else {
+      setPasswordError(false);
     }
 
     if (valid) {
@@ -200,21 +221,53 @@ export default function SignUp({ onPressLogin }: SignUpProps) {
           )}
         </FormControl>
 
-        {/* Phone */}
-        <FormControl isInvalid={phoneError} className="min-w-full">
+        {/* Email */}
+        <FormControl isInvalid={emailError} className="min-w-full">
           <FormControlLabel>
             <FormControlLabelText className="text-lg text-typography-500">
-              Phone #
+              Email
             </FormControlLabelText>
           </FormControlLabel>
           <Input size="xl" className="rounded-xl">
             <InputField
-              value={phone}
-              onChangeText={setPhone}
-              placeholder="+1 (000) 000 0000"
+              value={email}
+              onChangeText={setEmail}
+              placeholder="johndoe@gmail.com"
             />
           </Input>
-          {phoneError && (
+          {emailError && (
+            <FormControlError>
+              <FormControlErrorIcon as={AlertCircle} />
+              <FormControlErrorText
+                className=" overflow-hidden flex-wrap"
+                numberOfLines={2}
+                ellipsizeMode="tail"
+              >
+                Invalid
+              </FormControlErrorText>
+            </FormControlError>
+          )}
+        </FormControl>
+
+        {/* Password */}
+        <FormControl isInvalid={passwordError} className="min-w-full">
+          <FormControlLabel>
+            <FormControlLabelText className="text-lg text-typography-500">
+              Password
+            </FormControlLabelText>
+          </FormControlLabel>
+          <Input size="xl" className="rounded-xl">
+            <InputField
+              value={password}
+              onChangeText={setPassword}
+              placeholder="1IoveSteak&Shrimp!"
+              type={showPassword ? "text" : "password"}
+            />
+            <InputSlot className="pr-3" onPress={handleShowPassword}>
+              <InputIcon as={showPassword ? Eye : EyeOff} />
+            </InputSlot>
+          </Input>
+          {passwordError && (
             <FormControlError>
               <FormControlErrorIcon as={AlertCircle} />
               <FormControlErrorText
